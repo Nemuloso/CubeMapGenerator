@@ -164,6 +164,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\glsl\diffuseIBL.frag.glsl" />
     <None Include="src\glsl\gen.vert.glsl" />
     <None Include="src\glsl\gen.frag.glsl" />
     <None Include="src\glsl\texture.frag.glsl" />

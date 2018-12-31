@@ -1,12 +1,17 @@
+// Include own header
 #include "./generator.h"
-#include "constants.h"
+#include "./constants.h"
+// Include glad for OpenGL function pointers
 #include "glad/glad.h"
+// Include GLFW for window context. OpenGL does not work without...
 #include "GLFW/glfw3.h"
+// Include glm for vector and matrix operations
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 // Include Developers Image Library (DevIL)
 #ifndef ILUT_USE_OPENGL
-#define ILUT_USE_OPENGL // This MUST be defined before calling the DevIL headers or we don't get OpenGL functionality
+    // This MUST be defined before calling the DevIL headers or we don't get OpenGL functionality
+    #define ILUT_USE_OPENGL
 #endif
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -15,11 +20,11 @@
 // Forward declaration... GLFW does not like the callback inside the class structure.
 void window_size_callback(GLFWwindow* window, int width, int height);
 
-Generator::Generator() : Generator("", "./out") {}
-
 Generator::Generator(const std::string& in) : Generator(in, "./out") {}
 
 Generator::Generator(const std::string& in, const std::string& out) {
+    this->captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    
     this->setInFilePath(in);
     this->setOutPath(out);
 
@@ -47,6 +52,8 @@ Generator::Generator(const std::string& in, const std::string& out) {
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
 
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
     if (ilGetInteger(IL_VERSION_NUM) < IL_VERSION ||
         iluGetInteger(ILU_VERSION_NUM) < ILU_VERSION ||
         ilutGetInteger(ILUT_VERSION_NUM) < ILUT_VERSION) {
@@ -56,6 +63,7 @@ Generator::Generator(const std::string& in, const std::string& out) {
     ilInit();
 
     this->initShader();
+    this->loadSrcImg();
 }
 
 Generator::~Generator() {
@@ -68,6 +76,8 @@ const std::string & Generator::getInFilePath() const {
 
 void Generator::setInFilePath(const std::string& in) {
     this->inFilePath = in;
+    // TODO: This causes a crash
+    //this->loadSrcImg();
 }
 
 const std::string & Generator::getOutPath() const {
@@ -78,12 +88,16 @@ void Generator::setOutPath(const std::string& out) {
     this->outPath = out;
 }
 
-Image Generator::getHDRsrcImg() const {
-    return this->HDRsrcImg;
-}
-
 GLFWwindow* Generator::getWindow() const {
     return this->window;
+}
+
+void Generator::saveCubeMap() const {
+    saveCubeImages(captureColorbuffer);
+}
+
+void Generator::saveIrradianceMap() const {
+    saveCubeImages(irradianceColorbuffer);
 }
 
 std::ostream& operator<<(std::ostream& output, const Generator& gen) {
@@ -135,23 +149,23 @@ void Generator::loadSrcImg() {
         std::cout << "Image load error!" << std::endl;
     }
     else {
-        this->initCubeCapture();
+        this->initCubeCapture(this->captureFBO, this->captureColorbuffer, this->captureRBO, this->HDRsrcImg.width / 4);
     }
 }
 
 void Generator::initShader() {
     this->displayShader = Shader("./glsl/texture.vert.glsl", "./glsl/texture.frag.glsl", nullptr);
     this->equirectangularToCubemapShader = Shader("./glsl/gen.vert.glsl", "./glsl/gen.frag.glsl", nullptr);
+    this->irradianceShader = Shader("./glsl/gen.vert.glsl", "./glsl/diffuseIBL.frag.glsl", nullptr);
 }
 
-void Generator::initCubeCapture() {
-    const int sideWidth = this->HDRsrcImg.width / 4;
+void Generator::initCubeCapture(unsigned int &fbo, unsigned int &cubeTexture, unsigned int &rbo, int sideWidth) {
     // create a new Framebuffer
-    glGenFramebuffers(1, &this->captureFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->captureFBO);
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     // create a color attachment texture
-    glGenTextures(1, &this->captureColorbuffer);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, captureColorbuffer);
+    glGenTextures(1, &cubeTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTexture);
     for (unsigned int i = 0; i < 6; ++i)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, sideWidth, sideWidth, 0, GL_RGB, GL_FLOAT, NULL);
@@ -162,10 +176,10 @@ void Generator::initCubeCapture() {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // create a renderbuffer object (we won't be sampling these)
-    glGenRenderbuffers(1, &captureRBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, sideWidth, sideWidth);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, captureRBO);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, rbo);
     // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -173,7 +187,7 @@ void Generator::initCubeCapture() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Generator::renderDisplay() {
+void Generator::renderDisplay(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->displayShader.use();
     glViewport(0, 0, SRC_WIDTH, SRC_HEIGHT);
@@ -182,14 +196,7 @@ void Generator::renderDisplay() {
     glfwSwapBuffers(this->window);
 }
 
-void Generator::captureCubeFaces() {
-    std::string sidesPath;
-    const int sideWidth = this->HDRsrcImg.width / 4;
-    const glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    this->equirectangularToCubemapShader = Shader("./glsl/gen.vert.glsl", "./glsl/gen.frag.glsl", nullptr);
+void Generator::generateCubeMap() {
     this->equirectangularToCubemapShader.use();
     this->equirectangularToCubemapShader.setInt("equirectangularMap", 0);
     this->equirectangularToCubemapShader.setMat4("projection", captureProjection);
@@ -197,27 +204,41 @@ void Generator::captureCubeFaces() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, HDRsrcTexture);
 
+    const int sideWidth = this->HDRsrcImg.width / 4;
+
+    captureCubeFaces(sideWidth, this->captureFBO, this->captureColorbuffer, this->equirectangularToCubemapShader);
+}
+
+void Generator::generateIrradianceMap(const int sideWidth) {
+    initCubeCapture(this->irradianceFBO, this->irradianceColorbuffer, this->irradianceRBO, sideWidth);
+
+    this->irradianceShader.use();
+    this->irradianceShader.setInt("environmentMap", 0);
+    this->irradianceShader.setMat4("projection", this->captureProjection);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->captureColorbuffer);
+
+    captureCubeFaces(sideWidth, this->irradianceFBO, this->irradianceColorbuffer, this->irradianceShader);
+}
+
+void Generator::captureCubeFaces(const int sideWidth, const unsigned int fbo, const unsigned int cubeTexture, Shader shader) {
     //Before drawing
     glViewport(0, 0, sideWidth, sideWidth);
-    glBindFramebuffer(GL_FRAMEBUFFER, this->captureFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     // render
     for (int i = 0; i < 6; ++i)
     {
-        equirectangularToCubemapShader.setMat4("view", captureViews[i]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, captureColorbuffer, 0);
+        shader.setMat4("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, cubeTexture, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderCube();
     }
-    // Save the Images
-    saveCubeImages(this->captureColorbuffer);
-
-    renderDisplay();
 }
 
 // renderCube() renders a 1x1 3D cube in NDC.
-void Generator::renderCube()
-{
+void Generator::renderCube() {
     // initialize (if necessary)
     if (this->cubeVAO == 0)
     {
@@ -243,11 +264,26 @@ void Generator::renderCube()
     glBindVertexArray(0);
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void Generator::processWindowInput() const
-{
-    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(this->window, true);
+// renderQuad() renders a 1x1 XY quad in NDC
+void Generator::renderQuad() {
+    if (quadVAO == 0)
+    {
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        // Define positions location
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        // Define uv location
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }
 
 void Generator::saveCubeImages(const GLuint texId) const {
@@ -283,27 +319,10 @@ void Generator::saveCubeImages(const GLuint texId) const {
     }
 }
 
-// renderQuad() renders a 1x1 XY quad in NDC
-void Generator::renderQuad()
-{
-    if (quadVAO == 0)
-    {
-        // setup plane VAO
-        glGenVertexArrays(1, &quadVAO);
-        glGenBuffers(1, &quadVBO);
-        glBindVertexArray(quadVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        // Define positions location
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-        // Define uv location
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    }
-    glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+void Generator::processWindowInput() const {
+    if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(this->window, true);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

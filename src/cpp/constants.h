@@ -1,9 +1,15 @@
+/**
+* \author Stefan Hermes
+*
+* Here are just some variables defined which are use in the Generator class.
+* It is a personal preference to store those in a seperate file.
+**/
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-// pbr: set up projection and view matrices for capturing data onto the 6 cubemap face directions
-glm::mat4 captureViews[] =
+/// View matrices for capturing data onto the 6 cubemap face directions
+const glm::mat4 captureViews[] =
 {
     glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
     glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
@@ -13,7 +19,8 @@ glm::mat4 captureViews[] =
     glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
 };
 
-float cubeVertices[] = {
+/// The vertex attribute array for capturing the cube faces. Normalized Device Coordinates(NDC)
+const float cubeVertices[] = {
     // positions          // colors           // texture coords
     // back face
     -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
@@ -59,8 +66,8 @@ float cubeVertices[] = {
    -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left
 };
 
-// Normalized Device Coordinates(NDC)
-float quadVertices[] = {
+/// A vertex attribute array for rendering an image into the window. I dont know if I need it after the dev process. Normalized Device Coordinates(NDC)
+const float quadVertices[] = {
     // positions        // texture Coords
     -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,

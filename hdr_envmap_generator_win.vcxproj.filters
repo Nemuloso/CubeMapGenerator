@@ -64,5 +64,8 @@
     <None Include="src\glsl\texture.vert.glsl">
       <Filter>Quelldateien\glsl</Filter>
     </None>
+    <None Include="src\glsl\diffuseIBL.frag.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
   </ItemGroup>
 </Project>

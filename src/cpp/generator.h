@@ -3,9 +3,9 @@
 *
 * \author Stefan Hermes
 *
-* This class provides function to render and save convoluted, scaled
-* images. Theese can be used as mipmaps to determine the roughness in
-* PBR shaders.
+* This class provides function to create different source images for certain purposes from an equirectangular HDR image.
+* It converts the equirectangular image into six images to usa as cubemap side images. It also creates a diffuse IBL Map and
+* specular maps to use in pbr shaders.
 **/
 #ifndef GENERATOR_H
 #define GENERATOR_H
@@ -29,7 +29,6 @@ struct Image {
 
 class Generator {
 public:
-    Generator();
     Generator(const std::string&);
     Generator(const std::string&, const std::string&);
     ~Generator();
@@ -39,10 +38,11 @@ public:
     const std::string & getOutPath() const;
     void setOutPath(const std::string&);
     GLFWwindow* getWindow() const;
-    Image getHDRsrcImg() const;
+    void saveCubeMap() const;
+    void saveIrradianceMap() const;
 
-    void captureCubeFaces();
-    void loadSrcImg();
+    void generateCubeMap();
+    void generateIrradianceMap(const int sideWidth);
     void renderDisplay();
 
     void processWindowInput() const;
@@ -54,24 +54,31 @@ private:
     std::string outPath;
     GLFWwindow* window;
     Image HDRsrcImg;
-    Shader displayShader, equirectangularToCubemapShader;
+    Shader displayShader, equirectangularToCubemapShader, irradianceShader;
+    glm::mat4 captureProjection;
 
     unsigned int HDRsrcTexture;
     unsigned int cubeVAO = 0;
     unsigned int cubeVBO = 0;
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO;
     unsigned int captureFBO;
     unsigned int captureColorbuffer;
     unsigned int captureRBO;
-    unsigned int quadVAO = 0;
-    unsigned int quadVBO;
+    // TODO: reuse captureFBO?
+    unsigned int irradianceFBO;
+    unsigned int irradianceColorbuffer;
+    unsigned int irradianceRBO;
 
-    void initCubeCapture();
     void initShader();
+    void loadSrcImg();
+    void initCubeCapture(unsigned int &fbo, unsigned int &cubeTexture, unsigned int &rbo, int sideWidth);
+
+    void captureCubeFaces(const int sideWidth, const unsigned int fbo, const unsigned int cubeTexture, Shader shader);
+    void saveCubeImages(const GLuint texID) const;
 
     void renderQuad();
     void renderCube();
-
-    void saveCubeImages(const GLuint texID) const;
 
     friend std::ostream& operator<<(std::ostream& output, const Generator& gen);
 };
