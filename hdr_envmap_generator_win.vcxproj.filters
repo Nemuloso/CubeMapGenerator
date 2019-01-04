@@ -19,9 +19,15 @@
     <Filter Include="Quelldateien\glsl">
       <UniqueIdentifier>{5b2b076d-5176-46ae-a462-156b6d1f4c5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ressourcendateien\test">
+      <UniqueIdentifier>{fc06d3fd-4099-4076-949e-7a742c45dfb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="test\info.txt">
+      <Filter>Ressourcendateien\test</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -52,20 +58,40 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\glsl\gen.frag.glsl">
-      <Filter>Quelldateien\glsl</Filter>
-    </None>
-    <None Include="src\glsl\gen.vert.glsl">
-      <Filter>Quelldateien\glsl</Filter>
-    </None>
-    <None Include="src\glsl\texture.frag.glsl">
-      <Filter>Quelldateien\glsl</Filter>
-    </None>
-    <None Include="src\glsl\texture.vert.glsl">
-      <Filter>Quelldateien\glsl</Filter>
-    </None>
     <None Include="src\glsl\diffuseIBL.frag.glsl">
       <Filter>Quelldateien\glsl</Filter>
     </None>
+    <None Include="src\glsl\simpleSkybox.frag.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\simpleSkybox.vert.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\stdYFlip.vert.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="test\test_equirect.hdr">
+      <Filter>Ressourcendateien\test</Filter>
+    </None>
+    <None Include="src\glsl\equiToCube.frag.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\prefilterEnvIBL.frag.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\std.vert.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\texturedPlane.frag.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+    <None Include="src\glsl\texturedPlane.vert.glsl">
+      <Filter>Quelldateien\glsl</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\Patern_test.jpg">
+      <Filter>Ressourcendateien\test</Filter>
+    </Image>
   </ItemGroup>
 </Project>

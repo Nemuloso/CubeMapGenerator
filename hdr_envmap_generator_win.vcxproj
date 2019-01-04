@@ -99,8 +99,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;gltf2-loader.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>XCOPY $(SolutionDir)ext\libs\*.dll $(TargetDir) /S /Y
+XCOPY "$(SolutionDir)src\glsl" "$(TargetDir)\glsl\" /S /Y /K</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -145,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="test\info.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cpp\constants.h" />
@@ -165,10 +170,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\glsl\diffuseIBL.frag.glsl" />
-    <None Include="src\glsl\gen.vert.glsl" />
-    <None Include="src\glsl\gen.frag.glsl" />
-    <None Include="src\glsl\texture.frag.glsl" />
-    <None Include="src\glsl\texture.vert.glsl" />
+    <None Include="src\glsl\equiToCube.frag.glsl" />
+    <None Include="src\glsl\prefilterEnvIBL.frag.glsl" />
+    <None Include="src\glsl\simpleSkybox.frag.glsl" />
+    <None Include="src\glsl\simpleSkybox.vert.glsl" />
+    <None Include="src\glsl\std.vert.glsl" />
+    <None Include="src\glsl\stdYFlip.vert.glsl" />
+    <None Include="src\glsl\texturedPlane.frag.glsl" />
+    <None Include="src\glsl\texturedPlane.vert.glsl" />
+    <None Include="test\test_equirect.hdr" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\Patern_test.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
