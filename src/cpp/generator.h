@@ -70,6 +70,10 @@ public:
     * Sets and creates the output directories.
     **/
     void setOutPath(const std::string&);
+    /**
+    *
+    **/
+    void setMaxMipLevels(const int mips);
 
     /**
     * Converts a eqirectangular environment texture to a cube texture.
@@ -149,7 +153,7 @@ private:
     /// That is the textures ID for the prefiltered environment maps.
     unsigned int environmentColorbuffer;
     /// This determines how many mipmaps are created and which roughness values are used for wvery one.
-    unsigned int maxMipLevels = 5;
+    unsigned int maxMipLevels = 6;
 
     /// Initializes all Shader objects.
     void initShader();

@@ -16,7 +16,7 @@
 // Include Developers Image Library (DevIL)
 #ifndef ILUT_USE_OPENGL
     // This MUST be defined before calling the DevIL headers or we don't get OpenGL functionality
-    #define ILUT_USE_OPENGL
+#define ILUT_USE_OPENGL
 #endif
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -71,12 +71,14 @@ Generator::Generator(const std::string& in, const std::string& out) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // glfw window creation
-    this->window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, "EnvMapGen", NULL, NULL);
+    this->window = glfwCreateWindow(1, 1, "EnvMapGen", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
     }
+    glfwHideWindow(window);
+    glfwSetWindowSize(window, SRC_WIDTH, SRC_HEIGHT);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, window_size_callback);
 
@@ -87,6 +89,7 @@ Generator::Generator(const std::string& in, const std::string& out) {
     }
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL); // set depth function to less than AND equal for skybox depth trick.
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS); // enable to avoid seams
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     // Developers Image Library
@@ -139,6 +142,10 @@ void Generator::setOutPath(const std::string& out) {
     }
 }
 
+void Generator::setMaxMipLevels(const int mips) {
+    this->maxMipLevels = mips;
+}
+
 GLFWwindow* Generator::getWindow() const {
     return this->window;
 }
@@ -156,7 +163,7 @@ void Generator::savePrefilteredEnvMap() const {
         glBindTexture(GL_TEXTURE_CUBE_MAP, this->environmentColorbuffer);
         for (int j = 0; j < this->maxMipLevels; j++) {
             GLint width, height, internalFormat;
-            std::string fileName = this->outPath + "/env" + "/environment_" + this->outFileName + "_" + std::to_string(j) + "_"  + std::to_string(i) + ".hdr";
+            std::string fileName = this->outPath + "/env" + "/environment_" + this->outFileName + "_" + std::to_string(j) + "_" + std::to_string(i) + ".hdr";
 
             glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, j, GL_TEXTURE_INTERNAL_FORMAT, &internalFormat); // get internal format type of GL texture
             glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, j, GL_TEXTURE_WIDTH, &width); // get width of GL texture
@@ -195,7 +202,7 @@ void Generator::loadSrcImg() {
     ilGenImages(1, &HDRsrcImg.id);
     ilBindImage(HDRsrcImg.id);
 
-    ilLoad(IL_HDR, (const char*)"../test/test_equirect.hdr");
+    ilLoad(IL_HDR, this->inFilePath.c_str());
 
     HDRsrcImg.width = ilGetInteger(IL_IMAGE_WIDTH);
     HDRsrcImg.height = ilGetInteger(IL_IMAGE_HEIGHT);
@@ -227,8 +234,10 @@ void Generator::loadSrcImg() {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     if (ilGetError() != IL_NO_ERROR) {
         std::cout << "Image load error!" << std::endl;
@@ -253,6 +262,7 @@ void Generator::initCubeCapture(unsigned int &fbo, unsigned int &cubeTexture, un
     // create a color attachment texture
     glGenTextures(1, &cubeTexture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeTexture);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     for (unsigned int i = 0; i < 6; ++i)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, sideWidth, sideWidth, 0, GL_RGB, GL_FLOAT, NULL);
@@ -274,7 +284,7 @@ void Generator::initCubeCapture(unsigned int &fbo, unsigned int &cubeTexture, un
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Generator::renderDisplay(){
+void Generator::renderDisplay() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     this->displayShader.use();
     glViewport(0, 0, SRC_WIDTH, SRC_HEIGHT);
@@ -308,6 +318,9 @@ void Generator::generateCubeMap() {
     const int sideWidth = this->HDRsrcImg.width / 4;
 
     captureCubeFaces(sideWidth, this->captureFBO, this->captureColorbuffer, this->equirectangularToCubemapShader);
+    // then generate mipmaps
+    glBindTexture(GL_TEXTURE_CUBE_MAP, this->captureColorbuffer);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }
 
 void Generator::generateEnvironmentMap() {
@@ -342,7 +355,7 @@ void Generator::generateEnvironmentMap() {
         {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, environmentColorbuffer, mip);
-            
+
             glViewport(0, 0, mipWidth, mipHeight);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -462,8 +475,7 @@ void Generator::saveCubeImages(const GLuint texId, const std::string name, const
             ilSave(IL_HDR, fileName.c_str());
 
             delete[] buffer;
-        }
-        else {
+        } else {
             std::cout << "ERROR: No HDR Image. Format: " << std::to_string(internalFormat) << std::endl;
         }
     }
