@@ -1,5 +1,9 @@
 #version 330 core
 
+/**
+* This shader is originally from https://learnopengl.com
+**/
+
 const float PI = 3.14159265359;
 
 out vec4 FragColor;

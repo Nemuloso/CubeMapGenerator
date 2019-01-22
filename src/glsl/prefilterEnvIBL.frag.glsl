@@ -1,8 +1,15 @@
+#version 330 core
+
+/**
+* This shader is originally from https://learnopengl.com
+**/
+
 out vec4 FragColor;
 in vec3 localPos;
 uniform samplerCube environmentMap;
 uniform float roughness;
 const float PI = 3.14159265359;
+// TODO: Pass the resolution as a uniform
 const float resolution = 512.0;
 // resolution of source cubemap (per face)
 

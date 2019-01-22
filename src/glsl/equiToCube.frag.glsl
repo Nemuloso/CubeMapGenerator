@@ -1,3 +1,8 @@
+#version 330 core
+
+/**
+* This shader is originally from https://learnopengl.com
+**/
 
 out vec4 FragColor;
 in vec3 localPos;
