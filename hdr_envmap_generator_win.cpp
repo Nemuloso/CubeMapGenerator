@@ -22,6 +22,7 @@ const std::string help = "\n"
 "\n"
 "-out [path where to save to]     Define the output path. Default is .\out in the programs root directory.\n"
 "-mips [n]                        Number of generated prefiltered maps. Default is 6.\n"
+"-irr_res [n]                     Resolution of the irradiance maps squares. Default is 64.\n"
 "\n";
 
 int main(int argc, char *argv[])
@@ -45,6 +46,8 @@ int main(int argc, char *argv[])
     // Init the program
     Generator g(argv[1]);
 
+    int irradianceRes = 64;
+
     // Set the members
     for (int i = 2; i < argc; i++) {
         if (strcmp(argv[i], "-out") == 0) {
@@ -53,11 +56,14 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[i], "-mips") == 0) {
             g.setMaxMipLevels(atoi(argv[i + 1]));
         }
+        else if (strcmp(argv[i], "-irr_res") == 0) {
+            irradianceRes = atoi(argv[i + 1]);
+        }
     }
 
     g.generateCubeMap();
     g.saveCubeMap();
-    g.generateIrradianceMap(64);
+    g.generateIrradianceMap(irradianceRes);
     g.saveIrradianceMap();
     g.generateEnvironmentMap();
     g.savePrefilteredEnvMap();

@@ -115,8 +115,16 @@ private:
     const unsigned int SRC_HEIGHT = 600;
     /// The equirectangular .hdr source file.
     std::string inFilePath;
+    /// Also the source path. The image library needs it that way.
+    WCHAR *w_inFilePath = 0;
+    /// Function that manages type conversion.
+    //WCHAR getWideCharInPath();
     /// The path where to save to.
     std::string outPath;
+    /// Also the out path but as wide char array.
+    WCHAR *w_outPath = 0;
+    /// Function that manages type conversion.
+    //WCHAR getWideCharOutPath();
     /// The filename to save as
     std::string outFileName;
     /// For the window context.

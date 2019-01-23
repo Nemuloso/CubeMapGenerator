@@ -361,6 +361,7 @@ void Generator::generateEnvironmentMap() {
 
             this->prefilterEnvironmentShader.use();
             this->prefilterEnvironmentShader.setInt("equirectangularMap", 0);
+            this->prefilterEnvironmentShader.setFloat("resolution", float(this->HDRsrcImg.width / 4));
             this->prefilterEnvironmentShader.setMat4("projection", captureProjection);
             prefilterEnvironmentShader.setMat4("view", captureViews[i]);
 
