@@ -55,6 +55,7 @@ Generator::Generator(const std::string& in, const std::string& out) {
     // extract the input files name
     std::size_t dotPos = in.rfind(".hdr");
     std::size_t sepPos = in.rfind('/');
+
     if (sepPos != std::string::npos)
     {
         this->outFileName = in.substr(sepPos + 1, dotPos - sepPos - 1);

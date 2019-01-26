@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
         std::cout << help;
         return 0;
     }
-
+    
     // Convert escape character
     char c = '0';
     unsigned int i = 0;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         }
         i++;
     }
-
+    
     // Init the program
     Generator g(argv[1]);
 
