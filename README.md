@@ -44,6 +44,10 @@ resulting cubemap sides is 1/4th of the width of the original image. Optional pa
 * Before building the project, check the following settings:
   * Navigate in the topmenu to "Project"->"hdr_envmap_generator-Properties".
   * Choose on the left side "Configuration Properties"->"General" and change the encoding to "Not Set".
+  * Choose on the left side "Configuration Properties"->"VC++ Directories"
+    * add ".\ext\include" to the Include Directories.
+    * add ".\ext\libs" to the Library Directories.
+  * Navigate to "C/C++"->"Precompiled Headers" and choose "Not Using Precompiled Headers".
   * Choose "Linker"->"Input" and add the following libraries to the additional dependencies:
 opengl32.lib
 glfw3.lib
