@@ -9,6 +9,7 @@ The created cubemaps are saved as sets of six single images each. That way they 
 * Installation
   * Using pre-built binaries(TODO)
   * [Building from source](https://github.com/Nemuloso/CubeMapGenerator#building-it-from-source)
+  * [Usage](https://github.com/Nemuloso/CubeMapGenerator#usage)
   * [Troubleshooting](https://github.com/Nemuloso/CubeMapGenerator#troubleshooting)
 
 ### Building from source
@@ -20,6 +21,19 @@ Prerequisites:
 Download the project and open it with VS through doubleclicking the *.sln file in the projects root directory.
 Change the Project configuration in the top bar to "Release" and "x86".
 It should be possible to just hit "Build"->"Build Solution" and a Folder with the name Release should appear in the projects directory.
+
+### Usage
+
+In the Release folder should be an executeable file. Navigate with the console to this folder and call the file as following:
+
+.\hdr_envmap_generator_win.exe \[path to equirect image\] \[optional parameter\]
+
+The program just supports *.hdr files. It outputs to a defined folder or generates an "./out" folder in the Release Folder. The square size of the
+resulting cubemap sides is 1/4th of the width of the original image. Optional parameters are shown below.
+
+-out \[path where to save to\]     Define the output path. Default is .\out in the programs root directory.
+-mips \[n\]                        Number of generated prefiltered maps. Default is 6.
+-irr_res \[n\]                     Resolution of the irradiance maps squares. Default is 64.
 
 ### Troubleshooting
 
