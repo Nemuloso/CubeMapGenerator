@@ -82,8 +82,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\workspaces\cpp\hdr_envmap_generator_win\ext\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\workspaces\cpp\hdr_envmap_generator_win\ext\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>.\ext\include;$(IncludePath)</IncludePath>
+    <LibraryPath>.\ext\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
