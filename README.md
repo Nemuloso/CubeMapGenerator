@@ -31,9 +31,9 @@ In the Release folder should be an executeable file. Navigate with the console t
 The program just supports *.hdr files. It outputs to a defined folder or generates an "./out" folder in the Release Folder. The square size of the
 resulting cubemap sides is 1/4th of the width of the original image. Optional parameters are shown below.
 
-*out \[path where to save to\]     Define the output path. Default is .\out in the programs root directory.
-*mips \[n\]                        Number of generated prefiltered maps. Default is 6.
-*irr_res \[n\]                     Resolution of the irradiance maps squares. Default is 64.
+out \[path where to save to\]     Define the output path. Default is .\out in the programs root directory.\
+mips \[n\]                        Number of generated prefiltered maps. Default is 6.\
+irr_res \[n\]                     Resolution of the irradiance maps squares. Default is 64.\
 
 ### Troubleshooting
 
