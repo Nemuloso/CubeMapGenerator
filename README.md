@@ -14,7 +14,7 @@ The created cubemaps are saved as sets of six single images each. That way they 
 ### Building from source
 
 Prerequisites:
-* OpenGL( Is most likely already installed. )
+* OpenGL(Is most likely already installed.)
 * Visual Studio(VS) for its Compiler.
 
 Download the project and open it with VS through doubleclicking the *.sln file in the projects root directory.
