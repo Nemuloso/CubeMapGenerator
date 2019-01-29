@@ -18,9 +18,9 @@
     // This MUST be defined before calling the DevIL headers or we don't get OpenGL functionality
 #define ILUT_USE_OPENGL
 #endif
-#include <IL/il.h>
-#include <IL/ilu.h>
-#include <IL/ilut.h>
+#include "IL/il.h"
+#include "IL/ilu.h"
+#include "IL/ilut.h"
 
 // Forward declaration... GLFW does not like the callback inside the class structure.
 void window_size_callback(GLFWwindow* window, int width, int height);
