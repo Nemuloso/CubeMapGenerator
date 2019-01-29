@@ -11,6 +11,7 @@ The created cubemaps are saved as sets of six single images each. That way they 
   * [Building from source](https://github.com/Nemuloso/CubeMapGenerator#building-it-from-source)
   * [Usage](https://github.com/Nemuloso/CubeMapGenerator#usage)
   * [Troubleshooting](https://github.com/Nemuloso/CubeMapGenerator#troubleshooting)
+  * [Used Libraries and Links](https://github.com/Nemuloso/CubeMapGenerator#used_libraries_and_links)
 
 ### Building from source
 
@@ -54,3 +55,10 @@ glfw3.lib
 DevIL.lib
 ILU.lib
 ILUT.lib
+
+### Used Libraries and Links
+
+[Glad](https://glad.dav1d.de/) OpenGL library\
+[GLM](https://glm.g-truc.net/0.9.9/index.html) OpenGL Mathematics\
+[GLFW](https://www.glfw.org/) Window context\
+[Developers Image Library](https://github.com/DentonW/DevIL/) Image loading and saving\
