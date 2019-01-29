@@ -58,6 +58,7 @@ ILUT.lib
 
 ### Used Libraries and Links
 
+[Learn Open GL](https://learnopengl.com/) A great site with a lot of explanation around the topic.\
 [Glad](https://glad.dav1d.de/) OpenGL library\
 [GLM](https://glm.g-truc.net/0.9.9/index.html) OpenGL Mathematics\
 [GLFW](https://www.glfw.org/) Window context\
