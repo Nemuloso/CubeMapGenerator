@@ -7,8 +7,8 @@ The created cubemaps are saved as sets of six single images each. That way they 
 ## Overview
 
 * Installation
-  * Using pre-built binaries(TODO)
   * [Building from source](https://github.com/Nemuloso/CubeMapGenerator#building-it-from-source)
+  * [Using pre-built binaries](https://github.com/Nemuloso/CubeMapGenerator#using-pre-build-binaries)
   * [Usage](https://github.com/Nemuloso/CubeMapGenerator#usage)
   * [Troubleshooting](https://github.com/Nemuloso/CubeMapGenerator#troubleshooting)
   * [Used Libraries and Links](https://github.com/Nemuloso/CubeMapGenerator#used-libraries-and-links)
@@ -22,6 +22,11 @@ Prerequisites:
 Download the project and open it with VS through doubleclicking the *.sln file in the projects root directory.
 Change the Project configuration in the top bar to "Release" and "x86".
 It should be possible to just hit "Build"->"Build Solution" and a Folder with the name Release should appear in the projects directory.
+
+### Using pre-built binaries
+
+Download the here provided build.7z file and unpack the contents to any directory of your choice. This will be the programs root folder and
+is refered as the Release folder in the Usage section below.
 
 ### Usage
 
