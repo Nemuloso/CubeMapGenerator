@@ -41,6 +41,7 @@ resulting cubemap sides is 1/4th of the width of the original image. Optional pa
 ### Troubleshooting
 
 * Update your graphics drivers
+* Try rightclicking the solution in the Solution Explorer and choose "Retarget Solution"
 
 * Before building the project, check the following settings:
   * Navigate in the topmenu to "Project"->"hdr_envmap_generator-Properties".
